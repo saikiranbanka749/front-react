@@ -16,17 +16,18 @@ interface Employee {
 }
 
 type PropsRowData = {
-  resData: any; // Adjust the type of resData as needed
+  resData: any;
 };
 
 const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
   const [empData, setEmpData] = useState<Employee[]>([]);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       console.log("Fetching data...");
       try {
-        const response = await axios.get<Employee[]>("http://192.168.2.115:8080/users");
+        const response = await axios.get<Employee[]>("http://15.206.124.193/users");
         setEmpData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -36,10 +37,15 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
     fetchData();
   }, [resData]);
 
+  const rowsPerPage = 5;
+  const startIndex = (page - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedData = empData.slice(startIndex, endIndex);
+
   return (
-    <div style={{ position: "relative", top: "50px", overflowY: "scroll" }}>
+    <div style={{ position: "relative" }}>
       <TableContainer
-        sx={{ width: 500, position: "relative", left: "500px" }}
+        sx={{ width: 500, position: "relative", top: "10px", left: "500px" }}
         component={Paper}
       >
         <Table aria-label="simple table">
@@ -57,6 +63,7 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
               <TableCell
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",
+                  fontWeight: "bold",
                 }}
                 align="right"
               >
@@ -65,6 +72,7 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
               <TableCell
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",
+                  fontWeight: "bold",
                 }}
                 align="right"
               >
@@ -73,6 +81,7 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
               <TableCell
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",
+                  fontWeight: "bold",
                 }}
                 align="right"
               >
@@ -81,7 +90,7 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {empData?.map((row) => (
+            {paginatedData.map((row) => (
               <TableRow
                 key={row.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -95,6 +104,18 @@ const DisplayTable: React.FC<PropsRowData> = ({ resData }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <div style={{ textAlign: "right", position: "relative", left: "350px", top: "10px" }}>
+        <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+          Previous
+        </button>
+        <span style={{ margin: "0 10px" }}>Page {page}</span>
+        <button
+          onClick={() => setPage(page + 1)}
+          disabled={endIndex >= empData.length}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
