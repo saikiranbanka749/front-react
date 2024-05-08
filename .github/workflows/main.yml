@@ -23,7 +23,8 @@ jobs:
       run: npm install
 
     - name: Run the tests
-      run: npm test
+      run: npm test -- --detectOpenHandles
+
 
     - name: Build
       run: npm run build
